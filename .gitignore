@@ -1,0 +1,8 @@
+# Ignorar arquivos temporarios e bancos compilados
+*.db
+__pycache__/
+*.pyc
+
+# Ignorar o curriculo pessoal no repo de estudos (opcional)
+Curriculo_Marcus_Macedo_Analise_de_Dados.html
+Curriculo_Marcus_Macedo_Analise_de_Dados.txt
