@@ -40,7 +40,11 @@ where pedido_id is null;
 -- Considere apenas os pedidos com status 'Entregue' e ordene pelo maior faturamento.
 -- ESCREVA SUA QUERY ABAIXO:
 
-
+select c.estado, count(pedido_id) as "Quantidade de pedidos", sum(valor_total) as "Faturamento total" from pedidos as p 
+join clientes as c on p.cliente_id = c.cliente_id
+where status like 'Entregue'
+group by c.estado
+order by "Faturamento total" desc;
 
 
 -- EXERCÍCIO 4 (Cruzamento triplo com cálculo de itens):
@@ -48,8 +52,10 @@ where pedido_id is null;
 -- de itens e o valor total faturado por categoria (cruzando pedidos e itens_pedido).
 -- ESCREVA SUA QUERY ABAIXO:
 
-
-
+select categoria, sum(quantidade) as 'itens vendidos total', sum(ip.quantidade * ip.preco_unitario) as 'Valor total por categoria' from itens_pedido as ip
+join pedidos as p on ip.pedido_id = p.pedido_id
+group by categoria
+order by sum(quantidade) desc;
 
 -- EXERCÍCIO 5 (Filtro de Agrupamento com HAVING):
 -- Enunciado: Liste o nome dos clientes e o valor total acumulado que eles já gastaram, 
@@ -57,3 +63,8 @@ where pedido_id is null;
 -- Dica: O filtro do total deve ser feito com HAVING, após o agrupamento.
 -- ESCREVA SUA QUERY ABAIXO:
 
+select nome, sum(valor_total) as "Total Gasto" from clientes as c
+join pedidos as p on c.cliente_id = p.cliente_id
+group by nome
+having sum(valor_total) > 500 
+order by sum(valor_total) desc
