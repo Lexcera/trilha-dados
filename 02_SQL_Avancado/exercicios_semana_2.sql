@@ -52,9 +52,23 @@ order by Total_gasto desc;
 --    apenas onde o ranking for igual a 1.
 -- ESCREVA SUA QUERY ABAIXO:
 
+/*
+with pedidos_ranqueados as (
+	select cliente_id, row_number() over (order by data_pedido desc) as mais_antigo from pedidos
+)
 
+select p.cliente_id, p.pedido_id, p.data_pedido, p.valor_total, pr.mais_antigo from pedidos as p
+join pedidos_ranqueados as pr on p.cliente_id = pr.cliente_id
+order by pr.mais_antigo
+limit 1; -- minha query
+*/
+with pedidos_ranqueados as (
+	select cliente_id, pedido_id, data_pedido, valor_total, row_number() over (partition by cliente_id order by data_pedido asc) as mais_antigo from pedidos
+)
 
-
+select * from pedidos_ranqueados
+where mais_antigo = 1;
+	
 -- =============================================================================
 -- EXERCÍCIO 3: Maior Venda por Categoria de Produto
 -- =============================================================================
@@ -65,8 +79,12 @@ order by Total_gasto desc;
 -- 2. Traga o produto, a categoria e o preco_unitario do item número 1 de cada categoria.
 -- ESCREVA SUA QUERY ABAIXO:
 
+with produto_maior_valor as (
+select produto, categoria, preco_unitario, row_number() over (partition by categoria order by preco_unitario desc) as ranking from itens_pedido
+)
 
-
+select * from produto_maior_valor
+where ranking = 1;
 
 -- =============================================================================
 -- EXERCÍCIO 4: CTE Encadeada (Média Comparativa)
@@ -78,8 +96,14 @@ order by Total_gasto desc;
 --    tiveram valor_total ACIMA dessa média geral calculada na CTE.
 -- ESCREVA SUA QUERY ABAIXO:
 
+with ticket_medio_geral as (
+select avg(valor_total) as Média from pedidos
+where status like "Entregue"
+)
 
-
+select p.pedido_id, p.cliente_id, p.valor_total from pedidos as p
+where p.valor_total > (select média from ticket_medio_geral)
+order by p.valor_total desc;
 
 -- =============================================================================
 -- EXERCÍCIO 5: DENSE_RANK() vs ROW_NUMBER() (Ranking Geral de Clientes)
@@ -91,3 +115,11 @@ order by Total_gasto desc;
 -- 3. Exiba: ranking, nome do cliente, estado e faturamento total.
 -- ESCREVA SUA QUERY ABAIXO:
 
+with total_pcliente as (
+	select cliente_id, sum(valor_total) as faturamento_cliente from pedidos
+	group by cliente_id
+)
+
+select dense_rank () over (order by tc.faturamento_cliente desc ) as ranking, c.nome, c.estado, tc.faturamento_cliente from clientes as c 
+join total_pcliente as tc on c.cliente_id = tc.cliente_id
+order by ranking asc
