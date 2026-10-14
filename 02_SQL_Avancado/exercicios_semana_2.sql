@@ -52,16 +52,6 @@ order by Total_gasto desc;
 --    apenas onde o ranking for igual a 1.
 -- ESCREVA SUA QUERY ABAIXO:
 
-/*
-with pedidos_ranqueados as (
-	select cliente_id, row_number() over (order by data_pedido desc) as mais_antigo from pedidos
-)
-
-select p.cliente_id, p.pedido_id, p.data_pedido, p.valor_total, pr.mais_antigo from pedidos as p
-join pedidos_ranqueados as pr on p.cliente_id = pr.cliente_id
-order by pr.mais_antigo
-limit 1; -- minha query
-*/
 with pedidos_ranqueados as (
 	select cliente_id, pedido_id, data_pedido, valor_total, row_number() over (partition by cliente_id order by data_pedido asc) as mais_antigo from pedidos
 )
